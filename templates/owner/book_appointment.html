@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Book Appointment — PawsCare{% endblock %}
+{% block content %}
+<div style="max-width:560px;">
+  <div class="page-header">
+    <div class="page-title">📅 Book an Appointment</div>
+    <div class="page-subtitle">Choose pet → vet → date → time → reason</div>
+  </div>
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Choose Pet *</label>
+        <select name="pet_id" class="form-control" required>
+          <option value="">Select pet...</option>
+          {% for pet in pets %}
+          <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.species }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Choose Vet Station *</label>
+        <select name="station_id" class="form-control" required>
+          <option value="">Select clinic...</option>
+          {% for station in stations %}
+          <option value="{{ station.id }}" {{ 'selected' if request.args.get('station')|int == station.id }}>{{ station.name }} — ⭐{{ station.rating }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time *</label>
+          <input type="time" name="time" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason for Visit *</label>
+        <textarea name="reason" class="form-control" rows="3" placeholder="e.g. Annual checkup, vaccination, follow-up..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Submit Request →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

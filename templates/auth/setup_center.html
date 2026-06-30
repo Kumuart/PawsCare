@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Setup Adoption Center — PawsCare{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:0 auto;">
+  <div class="page-header">
+    <div class="page-title">🏠 Setup Your Center</div>
+    <div class="page-subtitle">Register your adoption center</div>
+  </div>
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Center Name *</label>
+        <input type="text" name="name" class="form-control" placeholder="Happy Tails Adoption Center" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Physical Address *</label>
+        <input type="text" name="address" class="form-control" placeholder="Karen, Nairobi" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Front Desk Phone *</label>
+        <input type="text" name="phone" class="form-control" placeholder="+254 7xx xxx xxx" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Opening Time</label>
+          <input type="time" name="opening_hours" class="form-control" value="09:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Closing Time</label>
+          <input type="time" name="closing_hours" class="form-control" value="17:00">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Setup Center →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

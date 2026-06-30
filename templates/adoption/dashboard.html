@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Adoption Dashboard — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+  <div>
+    <div class="page-title">🏠 {{ center.name }}</div>
+    <div class="page-subtitle">{{ center.address }}</div>
+  </div>
+  <a href="/adoption/pet/add" class="btn btn-primary">+ Add Pet</a>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DAFBE1;">✅</div>
+    <div><div class="stat-value">{{ available|length }}</div><div class="stat-label">Available</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FFF3CD;">⏳</div>
+    <div><div class="stat-value">{{ reserved|length }}</div><div class="stat-label">Reserved</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DBF0FF;">🏡</div>
+    <div><div class="stat-value">{{ adopted|length }}</div><div class="stat-label">Adopted</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--surface3);">🚫</div>
+    <div><div class="stat-value">{{ unavailable|length }}</div><div class="stat-label">Unavailable</div></div>
+  </div>
+</div>
+
+{% macro pet_row(pet) %}
+<div style="display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;">
+  <div style="width:48px;height:48px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">{{ pet.photo }}</div>
+  <div style="flex:1;">
+    <div style="font-weight:700;font-size:0.9rem;">{{ pet.name }}</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);">{{ pet.breed }} · {{ pet.estimated_age }} · {{ pet.gender }}</div>
+  </div>
+  <span class="badge badge-{{ 'success' if pet.health_status == 'Healthy' else 'warning' }}">{{ pet.health_status }}</span>
+  <form method="POST" action="/adoption/pet/{{ pet.id }}/status">
+    <select name="status" class="form-control" style="font-size:0.78rem;padding:6px 10px;" onchange="this.form.submit()">
+      <option value="available" {{ 'selected' if pet.status == 'available' }}>Available</option>
+      <option value="reserved" {{ 'selected' if pet.status == 'reserved' }}>Reserved</option>
+      <option value="adopted" {{ 'selected' if pet.status == 'adopted' }}>Adopted</option>
+      <option value="unavailable" {{ 'selected' if pet.status == 'unavailable' }}>Unavailable</option>
+    </select>
+  </form>
+  <form method="POST" action="/adoption/pet/{{ pet.id }}/remove" onsubmit="return confirm('Remove this pet listing?')">
+    <button type="submit" class="btn btn-outline btn-sm">🗑️</button>
+  </form>
+</div>
+{% endmacro %}
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-title">✅ Available ({{ available|length }})</div>
+  {% for pet in available %}{{ pet_row(pet) }}{% else %}<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.85rem;">None</div>{% endfor %}
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-title">⏳ Reserved ({{ reserved|length }})</div>
+  {% for pet in reserved %}{{ pet_row(pet) }}{% else %}<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.85rem;">None</div>{% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-title">🏡 Adopted ({{ adopted|length }})</div>
+  {% for pet in adopted %}{{ pet_row(pet) }}{% else %}<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.85rem;">None</div>{% endfor %}
+</div>
+{% endblock %}

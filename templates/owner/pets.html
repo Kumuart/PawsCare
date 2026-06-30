@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}My Pets — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+  <div>
+    <div class="page-title">My Pets</div>
+    <div class="page-subtitle">Manage all your pet profiles</div>
+  </div>
+  <a href="/owner/pets/add" class="btn btn-primary">+ Add Pet</a>
+</div>
+
+{% if pets %}
+<div class="grid grid-3">
+  {% for pet in pets %}
+  <a href="/owner/pets/{{ pet.id }}" class="pet-card">
+    <div class="pet-avatar">{{ pet.photo }}</div>
+    <div class="pet-name">{{ pet.name }}</div>
+    <div class="pet-breed">{{ pet.species }}{% if pet.breed %} · {{ pet.breed }}{% endif %}</div>
+    <div class="pet-meta">
+      <span class="badge badge-muted">{{ pet.age }}</span>
+      <span class="badge badge-muted">{{ pet.gender }}</span>
+      {% if pet.known_conditions and pet.known_conditions != 'None' %}
+      <span class="badge badge-warning">⚠ Condition</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:60px 20px;">
+  <div style="font-size:3rem;margin-bottom:16px;">🐾</div>
+  <div style="font-weight:600;margin-bottom:8px;">No pets yet</div>
+  <div style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;">Add your first pet profile to get started</div>
+  <a href="/owner/pets/add" class="btn btn-primary">+ Add Your First Pet</a>
+</div>
+{% endif %}
+{% endblock %}

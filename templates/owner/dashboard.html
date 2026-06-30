@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Welcome back, {{ current_user.full_name.split()[0] }} 👋</div>
+  <div class="page-subtitle">Here's what's happening with your pets today</div>
+</div>
+
+<!-- Emergency CTA -->
+<div style="margin-bottom:24px;">
+  <a href="/owner/emergency" class="emergency-btn" style="width:fit-content;">
+    🚨 EMERGENCY — Get Immediate Vet Help
+  </a>
+</div>
+
+<!-- Stats Row -->
+<div class="grid grid-4" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FFF0EB;">🐾</div>
+    <div>
+      <div class="stat-value">{{ pets|length }}</div>
+      <div class="stat-label">My Pets</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DAFBE1;">📅</div>
+    <div>
+      <div class="stat-value">{{ appointments|selectattr('status','equalto','accepted')|list|length }}</div>
+      <div class="stat-label">Upcoming Appts</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DBF0FF;">💊</div>
+    <div>
+      <div class="stat-value">{{ active_meds|length }}</div>
+      <div class="stat-label">Active Meds</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FFF3CD;">🏥</div>
+    <div>
+      <div class="stat-value">3</div>
+      <div class="stat-label">Nearby Vets</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:24px;">
+  <!-- My Pets -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="card-title">My Pets</div>
+      <a href="/owner/pets/add" class="btn btn-primary btn-sm">+ Add Pet</a>
+    </div>
+    {% if pets %}
+      {% for pet in pets %}
+      <a href="/owner/pets/{{ pet.id }}" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;text-decoration:none;color:inherit;transition:background .2s;margin-bottom:8px;border:1px solid var(--border);" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">
+        <div style="width:44px;height:44px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">{{ pet.photo }}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.92rem;">{{ pet.name }}</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">{{ pet.species }}{% if pet.breed %} · {{ pet.breed }}{% endif %} · {{ pet.age }}</div>
+        </div>
+        <span style="color:var(--text-muted);font-size:0.8rem;">→</span>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:20px;color:var(--text-muted);">No pets yet. Add one!</div>
+    {% endif %}
+  </div>
+
+  <!-- Upcoming Appointments -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="card-title">Appointments</div>
+      <a href="/owner/appointments/book" class="btn btn-outline btn-sm">Book New</a>
+    </div>
+    {% if appointments %}
+      {% for apt in appointments %}
+      <div style="padding:12px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="font-weight:600;font-size:0.88rem;">{{ apt.pet.name }}</div>
+          <span class="badge badge-{{ 'success' if apt.status == 'accepted' else 'warning' if apt.status == 'pending' else 'danger' }}">{{ apt.status|title }}</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">{{ apt.date }} at {{ apt.time }}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">{{ apt.reason[:50] }}{% if apt.reason|length > 50 %}...{% endif %}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:20px;color:var(--text-muted);">No appointments yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+  <div class="card-title">Quick Actions</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="/owner/vets" class="btn btn-secondary">🏥 Find Vets</a>
+    <a href="/owner/adoption" class="btn btn-outline">🏠 Adopt a Pet</a>
+    <a href="/owner/community" class="btn btn-outline">💬 Community</a>
+    <a href="/owner/pets/add" class="btn btn-outline">🐾 Add Pet</a>
+  </div>
+</div>
+
+<!-- Temporal/Akido Sponsor Banner -->
+<div style="margin-top:24px;background:var(--secondary);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:200px;">
+    <div style="color:rgba(255,255,255,0.5);font-size:0.72rem;letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Hackathon Sponsors</div>
+    <div style="color:white;font-size:0.88rem;font-weight:500;">PawsCare emergency workflows are powered by <strong style="color:#FF6B35;">Temporal</strong> for reliability and <strong style="color:#A8E6CF;">Akido</strong> for security.</div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;">
+      <div style="font-size:1.2rem;margin-bottom:2px;">⏱️</div>
+      <div style="color:white;font-size:0.78rem;font-weight:700;">Temporal</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:10px 16px;text-align:center;">
+      <div style="font-size:1.2rem;margin-bottom:2px;">🤖</div>
+      <div style="color:white;font-size:0.78rem;font-weight:700;">Akido</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

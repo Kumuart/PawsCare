@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Appointments — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">Appointments</div>
+  <div class="page-subtitle">{{ station.name }}</div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Pet</th><th>Owner</th><th>Date & Time</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      {% for apt in appointments %}
+      <tr>
+        <td><strong>{{ apt.pet.name }}</strong></td>
+        <td>{{ apt.pet_owner.full_name }}</td>
+        <td>{{ apt.date }} · {{ apt.time }}</td>
+        <td>{{ apt.reason }}</td>
+        <td><span class="badge badge-{{ 'success' if apt.status == 'accepted' else 'warning' if apt.status == 'pending' else 'danger' }}">{{ apt.status|title }}</span></td>
+        <td>
+          {% if apt.status == 'pending' %}
+          <form method="POST" action="/vet/appointment/{{ apt.id }}/respond" style="display:flex;gap:6px;">
+            <button name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+            <button name="action" value="reject" class="btn btn-outline btn-sm">Reject</button>
+          </form>
+          {% else %}
+          <a href="/vet/records/{{ apt.pet_id }}" class="btn btn-outline btn-sm">Records</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

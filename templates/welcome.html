@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawsCare — Smart Pet Health</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FF6B35; --primary-dark: #E55A24; --primary-light: #FFF0EB;
+      --secondary: #2D3561; --text: #1A1D2E; --muted: #6B7194;
+      --border: #E8EAF0; --surface: #FFFFFF; --surface2: #F8F9FC;
+      --success: #2ECC71; --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--secondary); color: white; }
+
+    /* Loading Screen */
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #2D3561, #1A1D2E);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity 0.7s ease;
+    }
+    #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+    .loading-logo { font-size: 3.5rem; font-weight: 800; color: white; letter-spacing: -1px; font-family: 'Space Grotesk', sans-serif; margin-bottom: 8px; }
+    .loading-logo span { color: #FF6B35; }
+    .loading-sub { color: rgba(255,255,255,0.45); font-size: 0.9rem; margin-bottom: 50px; }
+    .loading-bar-wrap { width: 200px; height: 3px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; }
+    .loading-bar { height: 100%; width: 0; background: #FF6B35; border-radius: 99px; animation: lb 3s ease forwards; }
+    @keyframes lb { to { width: 100%; } }
+    .cat-track { position: absolute; bottom: 40px; left: 0; right: 0; height: 60px; overflow: hidden; }
+    .walk-cat { position: absolute; bottom: 8px; font-size: 2.5rem; animation: walk 3.5s linear; }
+    @keyframes walk { from { left: -80px; } to { left: 110%; } }
+
+    /* Main Content */
+    #main { display: none; }
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2D3561 0%, #1A1D2E 60%, #0F1120 100%);
+      position: relative; overflow: hidden;
+    }
+    .hero-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+    }
+    .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.4rem; color: white; text-decoration: none; }
+    .logo span { color: #FF6B35; }
+    .demo-btn {
+      padding: 9px 22px; border-radius: 8px; background: rgba(255,255,255,0.1);
+      color: white; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer; text-decoration: none; transition: all 0.2s;
+    }
+    .demo-btn:hover { background: rgba(255,255,255,0.18); }
+
+    .hero-body {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: calc(100vh - 80px);
+      text-align: center; padding: 40px 24px;
+    }
+    .hero-cat { font-size: 5rem; margin-bottom: 24px; animation: float 3s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 800; line-height: 1.1; margin-bottom: 20px;
+      color: white;
+    }
+    .hero-title .accent { color: #FF6B35; }
+    .hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.6); max-width: 520px; line-height: 1.6; margin-bottom: 48px; }
+    .role-cards {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px;
+    }
+    .role-card {
+      background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
+      padding: 32px 28px; width: 200px; cursor: pointer;
+      text-decoration: none; color: white;
+      transition: all 0.3s; text-align: center;
+    }
+    .role-card:hover {
+      background: rgba(255,107,53,0.15); border-color: #FF6B35;
+      transform: translateY(-4px);
+    }
+    .role-card .rc-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .role-card .rc-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+    .role-card .rc-sub { font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+
+    /* Auth Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: white; border-radius: 24px; padding: 40px;
+      width: 380px; max-width: 95vw; color: var(--text);
+    }
+    .modal-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--secondary); margin-bottom: 4px; }
+    .modal-logo span { color: var(--primary); }
+    .modal-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .modal-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; }
+    .auth-tabs { display: flex; background: var(--surface2); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+    .auth-tab {
+      flex: 1; padding: 9px; border-radius: 8px; border: none;
+      background: none; font-family: inherit; font-size: 0.88rem;
+      font-weight: 600; cursor: pointer; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .auth-tab.active { background: white; color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+    .form-control {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: inherit; font-size: 0.9rem; color: var(--text);
+      outline: none; background: white; transition: border-color 0.2s;
+    }
+    .form-control:focus { border-color: var(--primary); }
+    .btn-primary {
+      width: 100%; padding: 13px; border-radius: 10px; background: var(--primary);
+      color: white; font-size: 0.95rem; font-weight: 700; border: none;
+      cursor: pointer; font-family: inherit; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .modal-demo {
+      margin-top: 20px; padding: 14px; background: var(--surface2);
+      border-radius: 10px; border: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .modal-demo strong { color: var(--text); }
+
+    /* Features strip */
+    .features {
+      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+      padding: 0 24px;
+    }
+    .feature { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.55); }
+    .feature span { font-size: 1rem; }
+
+    /* Sponsors bar */
+    .sponsors-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 24px; padding: 20px 48px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+      font-size: 0.75rem; color: rgba(255,255,255,0.4);
+    }
+    .sp { display: flex; align-items: center; gap: 8px; }
+    .sp .name { font-weight: 700; color: rgba(255,255,255,0.7); font-family: 'Space Grotesk', sans-serif; font-size: 0.85rem; }
+
+    /* BG decoration */
+    .bg-deco {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,107,53,0.06); pointer-events: none;
+    }
+    .deco1 { width: 600px; height: 600px; top: -200px; right: -200px; }
+    .deco2 { width: 400px; height: 400px; bottom: -150px; left: -100px; background: rgba(45,53,97,0.3); }
+  </style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-logo">🐾 Paws<span>Care</span></div>
+  <div class="loading-sub">Smart Pet Health Management</div>
+  <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+  <div class="cat-track"><div class="walk-cat">🐱</div></div>
+</div>
+
+<div id="main">
+  <div class="hero">
+    <div class="bg-deco deco1"></div>
+    <div class="bg-deco deco2"></div>
+
+    <nav class="hero-nav">
+      <a href="/" class="logo">🐾 Paws<span>Care</span></a>
+      <a href="#" class="demo-btn" onclick="openModal('owner')">Try Demo →</a>
+    </nav>
+
+    <div class="hero-body">
+      <div class="hero-cat">🐱</div>
+      <h1 class="hero-title">World <span class="accent">Cat Domination</span><br>Starts With Care</h1>
+      <p class="hero-desc">The complete platform for pet owners, veterinary clinics, and adoption centers — connecting pets to the care they deserve.</p>
+
+      <div class="role-cards">
+        <a href="#" class="role-card" onclick="openModal('owner')">
+          <div class="rc-icon">🐾</div>
+          <div class="rc-title">Pet Owner</div>
+          <div class="rc-sub">Manage your pets, find vets & book emergencies</div>
+        </a>
+        <a href="#" class="role-card" onclick="openModal('vet_station')">
+          <div class="rc-icon">🩺</div>
+          <div class="rc-title">Vet Clinic</div>
+          <div class="rc-sub">Manage appointments, emergencies & records</div>
+        </a>
+        <a href="#" class="role-card" onclick="openModal('adoption_center')">
+          <div class="rc-icon">🏠</div>
+          <div class="rc-title">Adoption Center</div>
+          <div class="rc-sub">List pets, manage statuses & coordinate visits</div>
+        </a>
+      </div>
+
+      <div class="features">
+        <div class="feature"><span>🚨</span> Emergency Response</div>
+        <div class="feature"><span>📅</span> Smart Scheduling</div>
+        <div class="feature"><span>💊</span> Medication Reminders</div>
+        <div class="feature"><span>🤖</span> AI Assistant</div>
+        <div class="feature"><span>📋</span> Medical Records</div>
+      </div>
+    </div>
+
+    <div class="sponsors-bar">
+      <span>Powered by</span>
+      <div class="sp"><span>⏱️</span><span class="name">Temporal</span><span style="color:rgba(255,255,255,0.3)">— Workflow Engine</span></div>
+      <div class="sp"><span>🤖</span><span class="name">Akido</span><span style="color:rgba(255,255,255,0.3)">— AI Security</span></div>
+      <span>·</span>
+      <span>🏆 Hack the Kitty 2025 — World Cat Domination</span>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <div class="modal-logo">🐾 Paws<span>Care</span></div>
+    <div style="height:12px"></div>
+    <div class="modal-title" id="modal-title">Welcome back</div>
+    <div class="modal-sub" id="modal-sub">Sign in to your account</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <form id="login-form" action="/auth/login" method="POST">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary">Sign In</button>
+      <div class="modal-demo">
+        <strong>Demo Credentials:</strong><br>
+        🐾 Pet Owner: amina@demo.com / demo123<br>
+        🩺 Vet Station: vet@demo.com / demo123<br>
+        🏠 Adoption: adopt@demo.com / demo123
+      </div>
+    </form>
+
+    <form id="register-form" style="display:none" action="/auth/register/" method="POST">
+      <input type="hidden" name="role" id="reg-role">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="full_name" class="form-control" placeholder="Your full name" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@email.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="text" name="phone" class="form-control" placeholder="+254 7xx xxx xxx">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="At least 6 characters" required>
+      </div>
+      <button type="submit" class="btn-primary">Create Account</button>
+    </form>
+
+    <button onclick="closeModal()" style="margin-top:16px; width:100%; padding:10px; border:none; background:none; color:#6B7194; cursor:pointer; font-family:inherit; font-size:0.85rem;">Cancel</button>
+  </div>
+</div>
+
+<script>
+  let currentRole = 'owner';
+  const roleLabels = { owner: 'Pet Owner', vet_station: 'Vet Clinic', adoption_center: 'Adoption Center' };
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loading-screen').classList.add('fade-out');
+      setTimeout(() => {
+        document.getElementById('loading-screen').remove();
+        document.getElementById('main').style.display = 'block';
+      }, 700);
+    }, 3200);
+  });
+
+  function openModal(role) {
+    currentRole = role || 'owner';
+    document.getElementById('auth-modal').classList.add('show');
+    document.getElementById('modal-title').textContent = `Welcome to PawsCare`;
+    document.getElementById('modal-sub').textContent = `Signing in as: ${roleLabels[currentRole]}`;
+    document.getElementById('reg-role').value = currentRole;
+    document.querySelector('#register-form').action = `/auth/register/${currentRole}`;
+  }
+
+  function closeModal() { document.getElementById('auth-modal').classList.remove('show'); }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'login')));
+    document.getElementById('login-form').style.display  = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  }
+
+  document.getElementById('auth-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Find Vets — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+  <div>
+    <div class="page-title">Find a Vet</div>
+    <div class="page-subtitle">{{ stations|length }} clinics near you</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="/owner/vets" class="btn btn-outline btn-sm {{ 'btn-primary' if not request.args.get('emergency') }}">All</a>
+    <a href="/owner/vets?emergency=1" class="btn btn-outline btn-sm {{ 'btn-primary' if request.args.get('emergency') }}">🚨 Emergency Ready</a>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  {% for station in stations %}
+  <div class="vet-card">
+    <div class="vet-header">
+      <div class="vet-avatar">🩺</div>
+      <div style="flex:1;">
+        <div class="vet-name">{{ station.name }}</div>
+        <div class="vet-address">{{ station.address }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="rating">⭐ {{ station.rating }}</div>
+      {% if station.emergency_available %}
+      <span class="badge badge-danger">🚨 Emergency</span>
+      {% endif %}
+    </div>
+    <div class="vet-info">
+      <div class="vet-info-item">Hours<strong>{{ station.opening_hours }} – {{ station.closing_hours }}</strong></div>
+      <div class="vet-info-item">Phone<strong>{{ station.phone }}</strong></div>
+    </div>
+    <div style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);">{{ station.services }}</div>
+    <a href="/owner/appointments/book?station={{ station.id }}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:14px;">Book Appointment</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

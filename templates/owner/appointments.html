@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Appointments — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+  <div>
+    <div class="page-title">Appointments</div>
+    <div class="page-subtitle">Track all your vet visits</div>
+  </div>
+  <a href="/owner/appointments/book" class="btn btn-primary">+ Book Appointment</a>
+</div>
+
+{% if appointments %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Pet</th><th>Clinic</th><th>Date & Time</th><th>Reason</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for apt in appointments %}
+      <tr>
+        <td><strong>{{ apt.pet.name }}</strong></td>
+        <td>{{ apt.vet_station.name if apt.vet_station else '—' }}</td>
+        <td>{{ apt.date }} · {{ apt.time }}</td>
+        <td>{{ apt.reason }}</td>
+        <td><span class="badge badge-{{ 'success' if apt.status == 'accepted' else 'warning' if apt.status == 'pending' else 'danger' }}">{{ apt.status|title }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:60px 20px;">
+  <div style="font-size:3rem;margin-bottom:16px;">📅</div>
+  <div style="font-weight:600;margin-bottom:8px;">No appointments yet</div>
+  <a href="/owner/appointments/book" class="btn btn-primary">+ Book Your First Appointment</a>
+</div>
+{% endif %}
+{% endblock %}

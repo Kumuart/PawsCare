@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Staff — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">👩‍⚕️ Staff Management</div>
+  <div class="page-subtitle">{{ station.name }}</div>
+</div>
+
+<div class="grid grid-3">
+  {% for emp in employees %}
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:52px;height:52px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">{{ emp.photo }}</div>
+      <div>
+        <div style="font-weight:700;font-size:0.95rem;">{{ emp.full_name }}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">{{ emp.specialty }}</div>
+      </div>
+    </div>
+    <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;">
+      {{ emp.years_experience }} years experience · {{ emp.employee_pk }}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <span class="badge {{ 'badge-success' if emp.on_duty else 'badge-muted' }}">{{ 'On Duty' if emp.on_duty else 'Off Duty' }}</span>
+      <span class="badge {{ 'badge-info' if emp.available_today else 'badge-muted' }}">{{ 'Available' if emp.available_today else 'Unavailable' }}</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <form method="POST" action="/vet/employee/{{ emp.id }}/toggle" style="flex:1;">
+        <input type="hidden" name="field" value="on_duty">
+        <button type="submit" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Toggle Duty</button>
+      </form>
+      <form method="POST" action="/vet/employee/{{ emp.id }}/toggle" style="flex:1;">
+        <input type="hidden" name="field" value="available_today">
+        <button type="submit" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;">Toggle Avail.</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Community — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">💬 Community</div>
+  <div class="page-subtitle">Share, ask questions, and bust cat myths together</div>
+</div>
+
+<div class="grid" style="grid-template-columns:1fr 320px;gap:24px;align-items:start;">
+  <div>
+    {% for post in posts %}
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1rem;">🐾</div>
+        <div>
+          <div style="font-weight:600;font-size:0.85rem;">{{ post.display_name }}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">{{ post.created_at.strftime('%d %b %Y') }}</div>
+        </div>
+        {% if post.post_type == 'myth' %}<span class="badge badge-warning" style="margin-left:auto;">🔍 Myth Check</span>{% endif %}
+        {% if post.post_type == 'question' %}<span class="badge badge-info" style="margin-left:auto;">❓ Question</span>{% endif %}
+      </div>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">{{ post.title }}</div>
+      <div style="font-size:0.88rem;color:var(--text);line-height:1.6;margin-bottom:14px;">{{ post.content }}</div>
+      <div style="display:flex;align-items:center;gap:16px;font-size:0.8rem;color:var(--text-muted);">
+        <span style="cursor:pointer;" onclick="likePost({{ post.id }}, this)">❤️ <span id="likes-{{ post.id }}">{{ post.likes }}</span></span>
+        <span>💬 {{ post.comments|length }}</span>
+      </div>
+      {% if post.comments %}
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        {% for c in post.comments %}
+        <div style="font-size:0.82rem;margin-bottom:8px;"><strong>{{ c.display_name }}:</strong> {{ c.content }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <form action="/owner/community/{{ post.id }}/comment" method="POST" style="margin-top:12px;display:flex;gap:8px;">
+        <input type="hidden" name="display_name" value="{{ current_user.full_name }}">
+        <input type="text" name="content" class="form-control" placeholder="Add a comment..." style="font-size:0.82rem;padding:8px 12px;" required>
+        <button type="submit" class="btn btn-outline btn-sm">Post</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <div class="card-title">Share Something</div>
+    <form action="/owner/community/post" method="POST">
+      <input type="hidden" name="display_name" value="{{ current_user.full_name }}">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select name="post_type" class="form-control">
+          <option value="general">General Post</option>
+          <option value="question">Question</option>
+          <option value="myth">Myth to Discuss</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" placeholder="What's on your mind?" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea name="content" class="form-control" rows="4" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Post to Community</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function likePost(id, el) {
+  fetch(`/api/post/${id}/like`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => { document.getElementById(`likes-${id}`).textContent = data.likes; });
+}
+</script>
+{% endblock %}

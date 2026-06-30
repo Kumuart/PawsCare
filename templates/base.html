@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PawsCare{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FF6B35;
+      --primary-dark: #E55A24;
+      --primary-light: #FFF0EB;
+      --secondary: #2D3561;
+      --accent: #A8E6CF;
+      --accent2: #FFD93D;
+      --surface: #FFFFFF;
+      --surface2: #F8F9FC;
+      --surface3: #F0F2F8;
+      --text: #1A1D2E;
+      --text-muted: #6B7194;
+      --border: #E8EAF0;
+      --success: #2ECC71;
+      --warning: #F39C12;
+      --danger: #E74C3C;
+      --info: #3498DB;
+      --radius: 16px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 20px rgba(45,53,97,0.08);
+      --shadow-hover: 0 8px 32px rgba(45,53,97,0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--surface2);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Loading Screen ─────────────────────────────────────── */
+    #loading-screen {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #2D3561 0%, #1A1D2E 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease;
+    }
+    #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+    .loading-logo {
+      font-size: 3rem; font-weight: 800;
+      color: white; letter-spacing: -1px;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 8px;
+    }
+    .loading-logo span { color: var(--primary); }
+    .loading-tagline { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 60px; }
+    /* Walking cat animation */
+    .cat-walk-container {
+      position: absolute; bottom: 40px; left: 0; right: 0;
+      height: 60px; overflow: hidden;
+    }
+    .walking-cat {
+      position: absolute; bottom: 0; left: -80px;
+      font-size: 2.5rem;
+      animation: catWalk 3.5s linear forwards;
+    }
+    .cat-paws {
+      position: absolute; bottom: 4px;
+      display: flex; gap: 6px;
+      animation: catWalk 3.5s linear forwards;
+      left: -20px;
+    }
+    .paw {
+      font-size: 0.7rem; opacity: 0.6; color: var(--primary);
+      animation: pawFade 0.5s ease infinite alternate;
+    }
+    .paw:nth-child(2) { animation-delay: 0.25s; }
+    .paw:nth-child(3) { animation-delay: 0.5s; }
+    .paw:nth-child(4) { animation-delay: 0.75s; }
+    @keyframes catWalk {
+      0%   { left: -80px; }
+      100% { left: 110%; }
+    }
+    @keyframes pawFade { from { opacity: 0.2; } to { opacity: 0.7; } }
+    .loading-bar-container {
+      width: 200px; height: 3px;
+      background: rgba(255,255,255,0.15); border-radius: 99px; overflow: hidden;
+    }
+    .loading-bar {
+      height: 100%; width: 0;
+      background: var(--primary);
+      border-radius: 99px;
+      animation: loadBar 2.8s ease forwards;
+    }
+    @keyframes loadBar { to { width: 100%; } }
+
+    /* ── Navbar ─────────────────────────────────────────────── */
+    .navbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex; align-items: center;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 1.3rem;
+      color: var(--secondary); text-decoration: none;
+    }
+    .nav-logo span { color: var(--primary); }
+    .nav-links {
+      display: flex; gap: 4px; align-items: center;
+      margin-left: 32px; flex: 1;
+    }
+    .nav-link {
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      text-decoration: none; font-size: 0.88rem; font-weight: 500;
+      color: var(--text-muted); transition: all 0.2s;
+    }
+    .nav-link:hover, .nav-link.active {
+      background: var(--primary-light); color: var(--primary);
+    }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.88rem; font-weight: 500; color: var(--text);
+    }
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .btn-logout {
+      padding: 7px 16px; background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: var(--text-muted); font-size: 0.82rem; cursor: pointer;
+      text-decoration: none; font-weight: 500; transition: all 0.2s;
+    }
+    .btn-logout:hover { background: var(--surface3); color: var(--text); }
+
+    /* ── Sidebar ────────────────────────────────────────────── */
+    .app-layout { display: flex; min-height: calc(100vh - 64px); }
+    .sidebar {
+      width: 220px; background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px; flex-shrink: 0;
+      position: sticky; top: 64px;
+      height: calc(100vh - 64px); overflow-y: auto;
+    }
+    .sidebar-section { margin-bottom: 24px; }
+    .sidebar-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 0 8px; margin-bottom: 6px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--radius-sm);
+      text-decoration: none; font-size: 0.88rem; font-weight: 500;
+      color: var(--text-muted); transition: all 0.2s;
+    }
+    .sidebar-link:hover { background: var(--surface3); color: var(--text); }
+    .sidebar-link.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .sidebar-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-sponsors {
+      margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border);
+    }
+    .sponsor-label {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    }
+    .sponsor-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      background: var(--surface2); margin-bottom: 6px;
+      border: 1px solid var(--border); text-decoration: none;
+    }
+    .sponsor-badge:hover { border-color: var(--primary); }
+    .sponsor-badge .sp-icon { font-size: 1rem; }
+    .sponsor-badge .sp-name {
+      font-size: 0.78rem; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif; color: var(--secondary);
+    }
+    .sponsor-badge .sp-type {
+      font-size: 0.62rem; color: var(--text-muted); font-weight: 400;
+    }
+
+    /* ── Main Content ───────────────────────────────────────── */
+    .main-content { flex: 1; padding: 28px; overflow-x: hidden; }
+    .page-header { margin-bottom: 24px; }
+    .page-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-subtitle { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* ── Cards ──────────────────────────────────────────────── */
+    .card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 24px; border: 1px solid var(--border);
+      box-shadow: var(--shadow); transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: var(--shadow-hover); }
+    .card-title {
+      font-size: 0.85rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 16px;
+    }
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    /* ── Stats ──────────────────────────────────────────────── */
+    .stat-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 20px; border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .stat-value { font-size: 1.8rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+    .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--radius-sm);
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      border: none; text-decoration: none; transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary { background: var(--secondary); color: white; }
+    .btn-secondary:hover { background: #1A1D2E; }
+    .btn-outline {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+    /* ── Emergency Button ───────────────────────────────────── */
+    .emergency-btn {
+      background: linear-gradient(135deg, #E74C3C, #C0392B);
+      color: white; border: none; border-radius: var(--radius);
+      padding: 16px 32px; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 20px rgba(231,76,60,0.4);
+      display: flex; align-items: center; gap: 12px;
+      transition: all 0.2s; text-decoration: none;
+      animation: emergencyPulse 2s infinite;
+    }
+    .emergency-btn:hover { transform: scale(1.02); box-shadow: 0 6px 30px rgba(231,76,60,0.5); }
+    @keyframes emergencyPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(231,76,60,0.4); }
+      50% { box-shadow: 0 4px 32px rgba(231,76,60,0.7); }
+    }
+
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 99px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .badge-success { background: #DAFBE1; color: #1A7F37; }
+    .badge-warning { background: #FFF3CD; color: #856404; }
+    .badge-danger  { background: #FFEEF0; color: #CF222E; }
+    .badge-info    { background: #DBF0FF; color: #0550AE; }
+    .badge-muted   { background: var(--surface3); color: var(--text-muted); }
+    .badge-orange  { background: #FFF0EB; color: var(--primary); }
+
+    /* ── Forms ──────────────────────────────────────────────── */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.3px;
+    }
+    .form-control {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 0.9rem; color: var(--text);
+      background: var(--surface); transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+    }
+    select.form-control { cursor: pointer; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    thead th {
+      background: var(--surface2); padding: 12px 16px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.4px;
+      color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    /* ── Pet Card ───────────────────────────────────────────── */
+    .pet-card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1px solid var(--border); padding: 20px;
+      text-decoration: none; color: inherit; display: block;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .pet-card:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+    .pet-avatar {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--primary-light); font-size: 1.8rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .pet-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .pet-breed { font-size: 0.82rem; color: var(--text-muted); }
+    .pet-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+    /* ── Vet Card ───────────────────────────────────────────── */
+    .vet-card {
+      background: var(--surface); border-radius: var(--radius);
+      border: 1px solid var(--border); padding: 20px;
+      transition: all 0.2s; display: block; text-decoration: none; color: inherit;
+    }
+    .vet-card:hover { box-shadow: var(--shadow-hover); border-color: var(--primary); }
+    .vet-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .vet-avatar {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: linear-gradient(135deg, #2D3561, #4A5490);
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    }
+    .vet-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+    .vet-address { font-size: 0.8rem; color: var(--text-muted); }
+    .rating { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; font-weight: 600; color: var(--warning); }
+    .vet-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .vet-info-item { font-size: 0.8rem; color: var(--text-muted); }
+    .vet-info-item strong { color: var(--text); display: block; font-size: 0.82rem; }
+
+    /* ── Timeline ───────────────────────────────────────────── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 9px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .timeline-item { position: relative; margin-bottom: 20px; }
+    .timeline-dot {
+      position: absolute; left: -23px; top: 4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid var(--surface); display: flex;
+      align-items: center; justify-content: center; font-size: 0.5rem;
+    }
+    .timeline-dot.vaccination { background: var(--success); }
+    .timeline-dot.diagnosis   { background: var(--info); }
+    .timeline-dot.prescription { background: var(--primary); }
+    .timeline-dot.emergency   { background: var(--danger); }
+    .timeline-dot.checkup     { background: var(--accent2); }
+    .timeline-content {
+      background: var(--surface2); border-radius: var(--radius-sm);
+      padding: 14px; border: 1px solid var(--border);
+    }
+    .timeline-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+    .timeline-desc  { font-size: 0.8rem; color: var(--text-muted); }
+    .timeline-meta  { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+
+    /* ── Alerts ─────────────────────────────────────────────── */
+    .alert {
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      font-size: 0.875rem; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .alert-success { background: #DAFBE1; color: #1A7F37; border: 1px solid #ADE9BD; }
+    .alert-error   { background: #FFEEF0; color: #CF222E; border: 1px solid #FAC5CD; }
+
+    /* ── Severity Colors ────────────────────────────────────── */
+    .severity-critical { color: #CF222E; font-weight: 700; }
+    .severity-urgent   { color: #F39C12; font-weight: 700; }
+    .severity-mild     { color: #1A7F37; font-weight: 600; }
+
+    /* ── Scrollbar ──────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ── Footer sponsor bar ─────────────────────────────────── */
+    .sponsor-footer {
+      background: var(--secondary); color: rgba(255,255,255,0.7);
+      text-align: center; padding: 12px;
+      font-size: 0.78rem; letter-spacing: 0.3px;
+    }
+    .sponsor-footer strong { color: white; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loading-logo">🐾 Paws<span>Care</span></div>
+  <div class="loading-tagline">Smart Pet Health Management</div>
+  <div class="loading-bar-container">
+    <div class="loading-bar"></div>
+  </div>
+  <div class="cat-walk-container">
+    <div class="walking-cat">🐱</div>
+    <div class="cat-paws" style="animation-delay:0.3s">
+      <span class="paw">🐾</span><span class="paw">🐾</span>
+      <span class="paw">🐾</span><span class="paw">🐾</span>
+    </div>
+  </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<nav class="navbar">
+  <a href="/" class="nav-logo">🐾 Paws<span>Care</span></a>
+  <div class="nav-links">
+    {% if current_user.role == 'owner' %}
+      <a href="/owner/dashboard" class="nav-link">Dashboard</a>
+      <a href="/owner/pets" class="nav-link">My Pets</a>
+      <a href="/owner/appointments" class="nav-link">Appointments</a>
+      <a href="/owner/vets" class="nav-link">Find Vets</a>
+      <a href="/owner/adoption" class="nav-link">Adopt</a>
+      <a href="/owner/community" class="nav-link">Community</a>
+    {% elif current_user.role == 'vet_station' %}
+      <a href="/vet/dashboard" class="nav-link">Dashboard</a>
+      <a href="/vet/appointments" class="nav-link">Appointments</a>
+      <a href="/vet/emergencies" class="nav-link">Emergencies</a>
+      <a href="/vet/employees" class="nav-link">Staff</a>
+    {% elif current_user.role == 'adoption_center' %}
+      <a href="/adoption/dashboard" class="nav-link">Dashboard</a>
+      <a href="/adoption/pet/add" class="nav-link">Add Pet</a>
+    {% endif %}
+  </div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar">{{ current_user.avatar or '👤' }}</div>
+      <span>{{ current_user.full_name.split()[0] }}</span>
+    </div>
+    <a href="/auth/logout" class="btn-logout">Sign Out</a>
+  </div>
+</nav>
+{% endif %}
+
+<div class="app-layout">
+  {% if current_user.is_authenticated %}
+  <aside class="sidebar">
+    {% if current_user.role == 'owner' %}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a href="/owner/dashboard" class="sidebar-link"><span class="sidebar-icon">🏠</span>Dashboard</a>
+      <a href="/owner/pets" class="sidebar-link"><span class="sidebar-icon">🐾</span>My Pets</a>
+      <a href="/owner/appointments" class="sidebar-link"><span class="sidebar-icon">📅</span>Appointments</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Services</div>
+      <a href="/owner/vets" class="sidebar-link"><span class="sidebar-icon">🩺</span>Find Vets</a>
+      <a href="/owner/emergency" class="sidebar-link" style="color:#E74C3C; font-weight:600;"><span class="sidebar-icon">🚨</span>Emergency</a>
+      <a href="/owner/adoption" class="sidebar-link"><span class="sidebar-icon">🏠</span>Adopt a Pet</a>
+      <a href="/owner/community" class="sidebar-link"><span class="sidebar-icon">💬</span>Community</a>
+    </div>
+    {% elif current_user.role == 'vet_station' %}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Clinic</div>
+      <a href="/vet/dashboard" class="sidebar-link"><span class="sidebar-icon">📊</span>Dashboard</a>
+      <a href="/vet/appointments" class="sidebar-link"><span class="sidebar-icon">📅</span>Appointments</a>
+      <a href="/vet/emergencies" class="sidebar-link"><span class="sidebar-icon">🚨</span>Emergencies</a>
+      <a href="/vet/employees" class="sidebar-link"><span class="sidebar-icon">👩‍⚕️</span>Staff</a>
+    </div>
+    {% elif current_user.role == 'adoption_center' %}
+    <div class="sidebar-section">
+      <div class="sidebar-label">Center</div>
+      <a href="/adoption/dashboard" class="sidebar-link"><span class="sidebar-icon">🏠</span>Dashboard</a>
+      <a href="/adoption/pet/add" class="sidebar-link"><span class="sidebar-icon">➕</span>Add Pet</a>
+    </div>
+    {% endif %}
+
+    <div style="flex:1"></div>
+    <div class="sidebar-sponsors">
+      <div class="sponsor-label">Powered by</div>
+      <a href="https://temporal.io" target="_blank" class="sponsor-badge">
+        <span class="sp-icon">⏱️</span>
+        <div>
+          <div class="sp-name">Temporal</div>
+          <div class="sp-type">Workflow Engine</div>
+        </div>
+      </a>
+      <a href="https://akido.ai" target="_blank" class="sponsor-badge">
+        <span class="sp-icon">🤖</span>
+        <div>
+          <div class="sp-name">Akido</div>
+          <div class="sp-type">AI Security</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  {% endif %}
+
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+          {{ '✅' if category == 'success' else '⚠️' }} {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<div class="sponsor-footer">
+  Built for <strong>🐱 Hack the Kitty 2025</strong> &nbsp;·&nbsp;
+  Powered by <strong>Temporal</strong> &amp; <strong>Akido</strong> &nbsp;·&nbsp;
+  Theme: <strong>World Cat Domination</strong>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const ls = document.getElementById('loading-screen');
+      if (ls) {
+        ls.classList.add('fade-out');
+        setTimeout(() => ls.remove(), 600);
+      }
+    }, 3000);
+  });
+  // Highlight active sidebar link
+  const links = document.querySelectorAll('.sidebar-link, .nav-link');
+  links.forEach(link => {
+    if (link.href === window.location.href) link.classList.add('active');
+  });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — PawsCare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary:#FF6B35;--secondary:#2D3561;--border:#E8EAF0;--muted:#6B7194;--surface2:#F8F9FC;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--surface2);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .wrap{width:420px;max-width:100%;}
+    .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;color:var(--secondary);text-align:center;margin-bottom:24px;}
+    .logo span{color:var(--primary);}
+    .card{background:white;border-radius:20px;padding:36px;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,0.06);}
+    h2{font-size:1.3rem;font-weight:700;margin-bottom:4px;}
+    .sub{font-size:0.85rem;color:var(--muted);margin-bottom:28px;}
+    .role-badge{display:inline-block;padding:4px 12px;background:#FFF0EB;color:var(--primary);border-radius:99px;font-size:0.78rem;font-weight:700;margin-bottom:20px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:5px;}
+    input,select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.9rem;outline:none;transition:border-color .2s;background:white;}
+    input:focus,select:focus{border-color:var(--primary);}
+    .btn{width:100%;padding:13px;border-radius:10px;background:var(--primary);color:white;font-size:0.95rem;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:background .2s;}
+    .btn:hover{background:#E55A24;}
+    .terms{font-size:0.78rem;color:var(--muted);margin-top:14px;text-align:center;}
+    .back{display:block;text-align:center;margin-top:16px;font-size:0.82rem;color:var(--muted);text-decoration:none;}
+    .back:hover{color:var(--primary);}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">🐾 Paws<span>Care</span></div>
+  <div class="card">
+    <h2>Create Account</h2>
+    <div class="sub">Join PawsCare today</div>
+    <div class="role-badge">
+      {% if role == 'owner' %}🐾 Pet Owner{% elif role == 'vet_station' %}🩺 Vet Clinic{% else %}🏠 Adoption Center{% endif %}
+    </div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="full_name" placeholder="Your full name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="you@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" name="phone" placeholder="+254 7xx...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Home Address</label>
+        <input type="text" name="address" placeholder="Nairobi, Kenya">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Min 6 characters" required>
+      </div>
+      <button type="submit" class="btn">Create Account →</button>
+      <p class="terms">By registering you accept our Terms & Conditions</p>
+    </form>
+  </div>
+  <a href="/" class="back">← Back to Welcome</a>
+</div>
+</body>
+</html>

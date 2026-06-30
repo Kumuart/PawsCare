@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Setup Vet Station — PawsCare{% endblock %}
+{% block content %}
+<div style="max-width:520px;margin:0 auto;">
+  <div class="page-header">
+    <div class="page-title">🩺 Setup Your Clinic</div>
+    <div class="page-subtitle">Tell us about your veterinary station</div>
+  </div>
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Clinic Name *</label>
+        <input type="text" name="name" class="form-control" placeholder="Nairobi Paws Clinic" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Physical Address *</label>
+        <input type="text" name="address" class="form-control" placeholder="Westlands, Nairobi" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Front Desk Phone *</label>
+        <input type="text" name="phone" class="form-control" placeholder="+254 7xx xxx xxx" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Opening Time</label>
+          <input type="time" name="opening_hours" class="form-control" value="08:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Closing Time</label>
+          <input type="time" name="closing_hours" class="form-control" value="20:00">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Services Offered</label>
+        <input type="text" name="services" class="form-control" placeholder="Checkup, Surgery, Vaccinations...">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" name="emergency" id="emg" style="width:auto;">
+        <label for="emg" style="margin:0;font-weight:500;color:#1A1D2E;">Emergency services available</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Setup Clinic →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Emergency Response — PawsCare{% endblock %}
+{% block content %}
+
+<div style="text-align:center;margin-bottom:24px;">
+  <div style="font-size:2.5rem;margin-bottom:8px;">
+    {% if severity == 'critical' %}🔴{% elif severity == 'urgent' %}🟠{% else %}🟢{% endif %}
+  </div>
+  <div class="page-title">Severity: <span class="severity-{{ severity }}">{{ severity|upper }}</span></div>
+  <div class="page-subtitle">Automatic emergency score determined by our triage system</div>
+</div>
+
+{% if case_type == 'case1' %}
+<!-- CASE 1: Physical Vet Visit -->
+<div class="card" style="max-width:600px;margin:0 auto;border-color:var(--danger);">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span class="badge badge-danger">CASE 1 — Physical Vet Visit</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:var(--surface2);border-radius:12px;">
+    <div style="width:56px;height:56px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">{{ vet.photo if vet else '👨‍⚕️' }}</div>
+    <div>
+      <div style="font-weight:700;">{{ vet.full_name if vet else 'Vet Assigned' }}</div>
+      <div style="font-size:0.82rem;color:var(--text-muted);">{{ vet.specialty if vet else '' }} · ID: {{ vet.employee_pk if vet else '—' }}</div>
+      <div style="font-size:0.82rem;color:var(--text-muted);">{{ station.name if station else '' }} · ⭐{{ station.rating if station else '—' }}</div>
+    </div>
+  </div>
+  <div class="grid grid-2" style="margin-bottom:16px;">
+    <div class="stat-card" style="padding:14px;">
+      <div class="stat-icon" style="background:#FFEEF0;width:40px;height:40px;font-size:1.1rem;">⏱️</div>
+      <div><div class="stat-value" style="font-size:1.2rem;">{{ emergency.vet_eta }}</div><div class="stat-label">ETA</div></div>
+    </div>
+    <div class="stat-card" style="padding:14px;">
+      <div class="stat-icon" style="background:#DAFBE1;width:40px;height:40px;font-size:1.1rem;">💳</div>
+      <div><div class="stat-value" style="font-size:1.2rem;">Charged</div><div class="stat-label">On File</div></div>
+    </div>
+  </div>
+  <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">
+    The vet has been dispatched and is travelling to your location. Treatment will be administered on-site, payment will be processed automatically, and your pet's medical records will be updated.
+  </div>
+</div>
+
+{% elif case_type == 'case2' %}
+<!-- CASE 2: Remote Assistance -->
+<div class="card" style="max-width:600px;margin:0 auto;border-color:var(--warning);">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span class="badge badge-warning">CASE 2 — Remote Assistance</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding:16px;background:var(--surface2);border-radius:12px;">
+    <div style="width:56px;height:56px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">{{ vet.photo if vet else '👩‍⚕️' }}</div>
+    <div>
+      <div style="font-weight:700;">{{ vet.full_name if vet else 'Vet Assigned' }}</div>
+      <div style="font-size:0.82rem;color:var(--text-muted);">{{ vet.specialty if vet else '' }}</div>
+    </div>
+  </div>
+  <div style="background:#FFF3CD;border:1px solid #FFE69C;border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.82rem;color:#856404;">
+    📹 By continuing, you consent to this session being recorded for medical record purposes.
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:16px;">
+    <button class="btn btn-secondary" style="flex:1;justify-content:center;">📞 Start Voice Call</button>
+    <button class="btn btn-outline" style="flex:1;justify-content:center;">📹 Add Video</button>
+  </div>
+  <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">
+    Connect with the vet remotely for treatment advice. Session will be recorded, payment processed automatically afterward, and medical records updated.
+  </div>
+</div>
+
+{% else %}
+<!-- CASE 3: AI Assistant -->
+<div class="card" style="max-width:600px;margin:0 auto;border-color:var(--info);">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span class="badge badge-info">CASE 3 — AI Emergency Assistant</span>
+    <span class="badge badge-success">No Payment Required</span>
+  </div>
+  <div style="background:var(--surface2);border-radius:12px;padding:20px;margin-bottom:16px;">
+    <div style="font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;">🤖 Akido AI First Aid Assistant</div>
+    <div style="font-size:0.88rem;line-height:1.8;color:var(--text);">
+      {% if 'Bleeding' in emergency.symptoms_q1 %}
+      <strong>Immediate steps:</strong> Apply gentle pressure with a clean cloth to the wound. Keep your pet calm and still. Avoid removing any embedded objects.
+      {% elif emergency.symptoms_q2 == 'Poisoning' %}
+      <strong>Immediate steps:</strong> Do NOT induce vomiting unless instructed. Remove your pet from the source. Note what was ingested if possible. Keep your pet warm and monitored.
+      {% elif emergency.symptoms_q2 == 'Seizure' %}
+      <strong>Immediate steps:</strong> Keep your pet away from stairs/furniture. Do not restrain them. Time the seizure. Stay calm and keep the area dark and quiet.
+      {% else %}
+      <strong>Immediate steps:</strong> Keep your pet calm and comfortable. Monitor breathing and alertness. Avoid giving food or water unless advised.
+      {% endif %}
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:8px;">
+    <button class="btn btn-outline" style="flex:1;justify-content:center;">🎥 Educational Videos</button>
+    <button class="btn btn-outline" style="flex:1;justify-content:center;">📍 Find Nearest Vet</button>
+  </div>
+  <div style="font-size:0.78rem;color:var(--text-muted);margin-top:12px;">No vets currently available — this AI guidance does not replace professional veterinary care. Visit a clinic as soon as possible.</div>
+</div>
+{% endif %}
+
+<div style="text-align:center;margin-top:24px;">
+  <a href="/owner/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+</div>
+{% endblock %}

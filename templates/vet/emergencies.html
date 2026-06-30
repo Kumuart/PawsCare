@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Emergencies — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">🚨 Emergency Queue</div>
+  <div class="page-subtitle">{{ station.name }}</div>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+  <div class="card-title" style="color:var(--danger);">Active Emergencies</div>
+  {% if active %}
+    {% for emg in active %}
+    <div style="padding:16px;background:#FFEEF0;border-radius:12px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <strong style="font-size:0.95rem;">{{ emg.pet.name }}</strong>
+          <span class="severity-{{ emg.severity }}" style="margin-left:8px;">{{ emg.severity|upper }}</span>
+        </div>
+        <span class="badge badge-info">{{ emg.case_type|upper }}</span>
+      </div>
+      <div style="font-size:0.84rem;color:var(--text);margin-bottom:4px;"><strong>Situation:</strong> {{ emg.symptoms_q2 }}</div>
+      <div style="font-size:0.84rem;color:var(--text);margin-bottom:4px;"><strong>Symptoms:</strong> {{ emg.symptoms_q3 }}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">Owner: {{ emg.requester.full_name }} · {{ emg.requester.phone }}</div>
+      <form method="POST" action="/vet/emergency/{{ emg.id }}/assign" style="display:flex;gap:8px;">
+        <select name="vet_id" class="form-control" style="flex:1;">
+          <option value="">Assign vet...</option>
+          {% for emp in employees %}
+          <option value="{{ emp.id }}">{{ emp.full_name }} — {{ emp.specialty }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger">Assign</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;color:var(--text-muted);padding:20px;">No active emergencies. 🎉</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-title">Resolved</div>
+  {% if resolved %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pet</th><th>Severity</th><th>Case</th><th>Vet</th></tr></thead>
+      <tbody>
+        {% for emg in resolved %}
+        <tr>
+          <td>{{ emg.pet.name }}</td>
+          <td><span class="severity-{{ emg.severity }}">{{ emg.severity|upper }}</span></td>
+          <td>{{ emg.case_type|upper }}</td>
+          <td>{{ emg.assigned_vet.full_name if emg.assigned_vet else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;color:var(--text-muted);padding:12px;font-size:0.88rem;">No resolved emergencies yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

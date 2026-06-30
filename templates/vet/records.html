@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Medical Records — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">📋 {{ pet.name }}'s Medical Records</div>
+  <div class="page-subtitle">{{ pet.species }} · {{ pet.breed }} · {{ pet.age }}</div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:24px;">
+  <div class="card">
+    <div class="card-title">💊 Add Prescription</div>
+    <form method="POST">
+      <input type="hidden" name="entry_type" value="medication">
+      <div class="form-group">
+        <label class="form-label">Medicine Name</label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Dosage</label>
+          <input type="text" name="dosage" class="form-control" placeholder="5mg" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Method</label>
+          <input type="text" name="method" class="form-control" placeholder="Oral" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <input type="text" name="duration" class="form-control" placeholder="7 days" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Prescription</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💉 Add Vaccination</div>
+    <form method="POST">
+      <input type="hidden" name="entry_type" value="vaccination">
+      <div class="form-group">
+        <label class="form-label">Vaccine Name</label>
+        <input type="text" name="vaccine_name" class="form-control" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date Given</label>
+          <input type="date" name="date_given" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Next Due</label>
+          <input type="date" name="next_due" class="form-control" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Add Vaccination</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Full Timeline</div>
+  {% if timeline %}
+  <div class="timeline">
+    {% for event in timeline %}
+    <div class="timeline-item">
+      <div class="timeline-dot {{ event.event_type }}"></div>
+      <div class="timeline-content">
+        <div class="timeline-title">{{ event.title }}</div>
+        <div class="timeline-desc">{{ event.description }}</div>
+        <div class="timeline-meta">{{ event.date.strftime('%d %b %Y') }} · {{ event.vet_name }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="color:var(--text-muted);text-align:center;padding:20px;">No timeline events yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

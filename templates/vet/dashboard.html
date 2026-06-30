@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Vet Dashboard — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">🩺 {{ station.name }}</div>
+  <div class="page-subtitle">{{ station.address }} · ⭐ {{ station.rating }} rating</div>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:24px;">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DAFBE1;">📅</div>
+    <div><div class="stat-value">{{ today_apts|length }}</div><div class="stat-label">Today's Appts</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FFF3CD;">⏳</div>
+    <div><div class="stat-value">{{ pending_apts|length }}</div><div class="stat-label">Pending Requests</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#FFEEF0;">🚨</div>
+    <div><div class="stat-value">{{ emergencies|length }}</div><div class="stat-label">Active Emergencies</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#DBF0FF;">👩‍⚕️</div>
+    <div><div class="stat-value">{{ employees|selectattr('on_duty')|list|length }}</div><div class="stat-label">Staff On Duty</div></div>
+  </div>
+</div>
+
+{% if emergencies %}
+<div class="card" style="margin-bottom:24px;border-color:var(--danger);">
+  <div class="card-title" style="color:var(--danger);">🚨 Active Emergencies</div>
+  {% for emg in emergencies %}
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#FFEEF0;border-radius:10px;margin-bottom:8px;">
+    <div>
+      <div style="font-weight:700;font-size:0.9rem;">{{ emg.pet.name }} — <span class="severity-{{ emg.severity }}">{{ emg.severity|upper }}</span></div>
+      <div style="font-size:0.78rem;color:var(--text-muted);">{{ emg.symptoms_q2 }} · {{ emg.symptoms_q3 }}</div>
+    </div>
+    <a href="/vet/emergencies" class="btn btn-danger btn-sm">Respond →</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="grid grid-2">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="card-title">Pending Appointment Requests</div>
+      <a href="/vet/appointments" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    {% if pending_apts %}
+      {% for apt in pending_apts %}
+      <div style="padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <strong style="font-size:0.88rem;">{{ apt.pet.name }}</strong>
+          <span style="font-size:0.78rem;color:var(--text-muted);">{{ apt.date }} {{ apt.time }}</span>
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">{{ apt.reason }}</div>
+        <form method="POST" action="/vet/appointment/{{ apt.id }}/respond" style="display:flex;gap:8px;">
+          <button name="action" value="accept" class="btn btn-success btn-sm" style="flex:1;justify-content:center;">Accept</button>
+          <button name="action" value="reject" class="btn btn-outline btn-sm" style="flex:1;justify-content:center;">Reject</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;color:var(--text-muted);padding:20px;font-size:0.88rem;">No pending requests.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="card-title">Staff Status</div>
+      <a href="/vet/employees" class="btn btn-outline btn-sm">Manage</a>
+    </div>
+    {% for emp in employees %}
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;margin-bottom:6px;">
+      <div style="width:36px;height:36px;background:var(--secondary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;">{{ emp.photo }}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.85rem;">{{ emp.full_name }}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">{{ emp.specialty }}</div>
+      </div>
+      <span class="badge {{ 'badge-success' if emp.on_duty else 'badge-muted' }}">{{ 'On Duty' if emp.on_duty else 'Off' }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Sponsor workflow callout -->
+<div style="margin-top:24px;background:var(--secondary);border-radius:16px;padding:18px 24px;display:flex;align-items:center;gap:16px;">
+  <div style="font-size:1.6rem;">⏱️</div>
+  <div style="color:white;font-size:0.85rem;">Emergency dispatch & appointment workflows are orchestrated by <strong style="color:#FF6B35;">Temporal</strong>, with patient data secured by <strong style="color:#A8E6CF;">Akido</strong>.</div>
+</div>
+{% endblock %}

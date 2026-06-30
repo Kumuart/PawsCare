@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Adopt a Pet — PawsCare{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-title">🏠 Adopt a Cat</div>
+  <div class="page-subtitle">{{ pets|length }} pets available across {{ centers|length }} centers</div>
+</div>
+
+<div class="grid grid-3">
+  {% for pet in pets %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div style="background:var(--primary-light);height:120px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;">{{ pet.photo }}</div>
+    <div style="padding:18px;">
+      <div style="display:flex;align-items:center;justify-content:between;gap:8px;margin-bottom:6px;">
+        <div style="font-weight:700;font-size:1.05rem;">{{ pet.name }}</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">{{ pet.breed }} · {{ pet.estimated_age }} · {{ pet.gender }}</div>
+      <span class="badge badge-{{ 'success' if pet.health_status == 'Healthy' else 'warning' }}">{{ pet.health_status }}</span>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:10px;line-height:1.5;">{{ pet.description }}</p>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted);">
+        📍 {{ pet.center.name }}<br>{{ pet.center.address }}
+      </div>
+      <a href="tel:{{ pet.center.phone }}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-top:12px;">📞 Call Front Desk</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if not pets %}
+<div class="card" style="text-align:center;padding:60px;">
+  <div style="font-size:3rem;margin-bottom:16px;">🐾</div>
+  <div style="color:var(--text-muted);">No pets currently available for adoption.</div>
+</div>
+{% endif %}
+{% endblock %}

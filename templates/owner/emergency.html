@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Emergency — PawsCare{% endblock %}
+{% block extra_css %}
+<style>
+  .emg-header {
+    background: linear-gradient(135deg, #E74C3C, #C0392B);
+    border-radius: 20px; padding: 28px; color: white; margin-bottom: 24px;
+  }
+  .q-group { margin-bottom: 22px; }
+  .q-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 12px; display:flex; align-items:center; gap:8px;}
+  .q-num { width:24px;height:24px;border-radius:50%;background:#E74C3C;color:white;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;}
+  .opt-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .opt-btn {
+    padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: white; cursor: pointer; font-family: inherit; font-size: 0.85rem;
+    font-weight: 500; text-align: left; transition: all 0.2s; color: var(--text);
+  }
+  .opt-btn:hover { border-color: #E74C3C; }
+  .opt-btn.selected { background: #FFEEF0; border-color: #E74C3C; color: #CF222E; font-weight: 700; }
+  input[type=radio] { display: none; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="emg-header">
+  <div style="font-size:1.6rem;font-weight:800;margin-bottom:4px;font-family:'Space Grotesk',sans-serif;">🚨 Emergency Screening</div>
+  <div style="opacity:0.9;font-size:0.9rem;">Answer a few quick questions so we can connect you to the right help, fast.</div>
+</div>
+
+<div class="card" style="max-width:640px;">
+  <form method="POST" action="/owner/emergency/submit" id="emg-form">
+    <div class="form-group">
+      <label class="form-label">Which pet needs help? *</label>
+      <select name="pet_id" class="form-control" required>
+        <option value="">Select pet...</option>
+        {% for pet in pets %}
+        <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.species }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="q-group">
+      <div class="q-label"><span class="q-num">1</span>Is your pet showing any of these critical signs?</div>
+      <div class="opt-grid">
+        {% for opt in ['Unconscious', 'Not Breathing', 'Bleeding Heavily', 'No'] %}
+        <label class="opt-btn" data-group="q1">
+          <input type="radio" name="q1" value="{{ opt }}" {{ 'checked' if opt == 'No' }} required> {{ opt }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="q-group">
+      <div class="q-label"><span class="q-num">2</span>What's the situation?</div>
+      <div class="opt-grid">
+        {% for opt in ['Injury', 'Poisoning', 'Giving Birth', 'Hit By Vehicle', 'Seizure', 'Other'] %}
+        <label class="opt-btn" data-group="q2">
+          <input type="radio" name="q2" value="{{ opt }}" required> {{ opt }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="q-group">
+      <div class="q-label"><span class="q-num">3</span>What symptoms are you observing?</div>
+      <div class="opt-grid">
+        {% for opt in ['Difficulty Breathing', 'Vomiting', 'Swelling', "Can't Walk", 'Not Eating', 'Other'] %}
+        <label class="opt-btn" data-group="q3">
+          <input type="radio" name="q3" value="{{ opt }}" required> {{ opt }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Upload Photo or Video (Optional)</label>
+      <input type="file" class="form-control" accept="image/*,video/*">
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Photo ≤ 5MB · Video ≤ 30s</div>
+    </div>
+
+    <button type="submit" class="btn btn-danger" style="width:100%;padding:14px;font-size:1rem;">Submit Emergency Request →</button>
+  </form>
+</div>
+
+<script>
+  document.querySelectorAll('.opt-btn').forEach(label => {
+    label.addEventListener('click', () => {
+      const group = label.dataset.group;
+      document.querySelectorAll(`.opt-btn[data-group="${group}"]`).forEach(l => l.classList.remove('selected'));
+      label.classList.add('selected');
+    });
+  });
+</script>
+{% endblock %}
