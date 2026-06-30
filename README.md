@@ -17,27 +17,27 @@ The standout feature is the **Emergency System**: a 3-question triage flow auto-
 
 ```
 pawscare/
-├── app.py                  # Flask app factory, blueprint registration, DB init
-├── run.py                  # Entry point — run this to start the server
-├── models.py                # All SQLAlchemy models (User, Pet, VetStation, etc.)
-├── seed.py                  # Hardcoded demo data (3 demo accounts, pets, vets, etc.)
+├── app.py                  
+├── run.py                  
+├── models.py                
+├── seed.py                  
 ├── requirements.txt
 ├── routes/
-│   ├── main.py               # Landing route
-│   ├── auth.py                # Login, register, role-based onboarding
-│   ├── owner.py               # Pet owner dashboard, pets, vets, appointments, emergency, adoption, community
-│   ├── vet.py                  # Vet station dashboard, appointments, emergencies, staff, records
-│   ├── adoption.py            # Adoption center dashboard, pet listing management
-│   └── api.py                  # JSON endpoints for AJAX calls (likes, vet/pet lookups)
+│   ├── main.py
+    ├── auth.py                
+│   ├── owner.py               
+│   ├── vet.py                 
+│   ├── adoption.py            
+│   └── api.py                 
 ├── templates/
-│   ├── base.html             # Shared layout: navbar, sidebar, loading screen (walking cat), sponsor footer
-│   ├── welcome.html         # Landing page with role picker + login/register modal
-│   ├── auth/                 # Login, register, onboarding forms
-│   ├── owner/                # Pet owner views
-│   ├── vet/                   # Vet station views
-│   └── adoption/             # Adoption center views
-├── static/                   # (css/js/img — currently styling is inlined in base.html for simplicity)
-└── instance/                 # SQLite DB lives here at runtime (pawscare.db)
+│   ├── base.html             
+│   ├── welcome.html         
+│   ├── auth/                
+│   ├── owner/              
+│   ├── vet/                
+│   └── adoption/            
+├── static/                  
+└── instance/                
 ```
 
 ## Setup & Run
